@@ -30,17 +30,17 @@ def initGL():
 def loadMedia():
     CHECKERBOARD_WIDTH = 128
     CHECKERBOARD_HEIGHT = 128
-    # checkerBoard = np.zeros((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint32)
-    # color1 = 0xFFFFFFFF
-    # color2 = 0xFF0000FF
-    # c = np.fromfunction(lambda x, y: (x//16 + y//16)%2, (CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
-    # checkerBoard[c == 0] = color1
-    # checkerBoard[c == 1] = color2
+    checkerBoard = np.zeros((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint32)
+    color1 = 0xFFFFFFFF
+    color2 = 0xFF0000FF
+    c = np.fromfunction(lambda x, y: (x//16 + y//16)%2, (CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
+    checkerBoard[c == 0] = color1
+    checkerBoard[c == 1] = color2
     # checkerBoard = np.fromfunction(lambda x, y: (x//16 + y//16)%2, (CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8) * 127 + \
     #     np.ones((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8) * 128
-    checkerBoard = np.zeros((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
-    checkerBoard[20,:] = np.ones(CHECKERBOARD_WIDTH, dtype=np.uint8) * 255
-    checkerBoard[:,20] = np.ones(CHECKERBOARD_HEIGHT, dtype=np.uint8) * 255
+    # checkerBoard = np.zeros((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
+    # checkerBoard[20,:] = np.ones(CHECKERBOARD_WIDTH, dtype=np.uint8) * 255
+    # checkerBoard[:,20] = np.ones(CHECKERBOARD_HEIGHT, dtype=np.uint8) * 255
     
     if not gCheckerBoardTexture.loadTextureFromPixels32(np.ascontiguousarray(checkerBoard).data, CHECKERBOARD_WIDTH, CHECKERBOARD_HEIGHT):
         print('Unable to load checkerboard texture!')

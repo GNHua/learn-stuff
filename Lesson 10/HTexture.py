@@ -39,6 +39,31 @@ class HTexture:
         # paddedImage.save('padded.png')
         return self.loadTextureFromPixels32(image, imgWidth, imgHeight, ix, iy)
         
+    def loadPixelsFromFile(self, imageName='texture.png'):
+        self.freeTexture()
+        try:
+            im = Image.open(imageName)
+        except:
+            return False
+        imgWidth, imgHeight = im.size[0], im.size[1]
+        ix, iy = next_p2(imgWidth), next_p2(imgHeight)
+        paddedImage = Image.new('RGBA', (ix, iy), (0, 0, 0, 0))
+        paddedImage.paste(im, (0, iy - imgHeight, imgWidth, iy))
+        try:
+            image = paddedImage.tobytes("raw", "RGBA", 0, -1)
+        except SystemError:
+            image = paddedImage.tobytes("raw", "RGBX", 0, -1)
+        # paddedImage.save('padded.png')
+        self.mImageWidth = imgWidth
+        self.mImageHeight = imgHeight
+        self.mPixels = np.frombuffer(rawPixels, dtype='S4').reshape(iy, ix)
+        self.mPixels.flags.writeable = True
+        return True
+        
+    def loadTextureFromFileWithColorKey(self, imageName='texture.png'):
+        if not loadPixelsFromFile(imageName):
+            
+        
     def loadTextureFromPixels32(self, pixels, imgWidth, imgHeight, texWidth, texHeight):
         self.freeTexture()
         self.mTextureWidth = texWidth

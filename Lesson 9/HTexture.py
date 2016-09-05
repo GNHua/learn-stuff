@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from PIL import Image
+import numpy as np
 
 def next_p2(num):
     temp = 1
@@ -23,6 +24,7 @@ class HTexture:
         self.mTextureHeight = 0
         self.mImageWidth = 0
         self.mImageHeight = 0
+        self.mPixels = None
         
     def loadTextureFromFile(self, imageName='texture.png'):
         im = Image.open(imageName)
@@ -61,10 +63,37 @@ class HTexture:
         if self.mTextureID != 0:
             glDeleteTextures(1, self.mTextureID)
             self.mTextureID = 0
+        self.mPixels = None
         self.mTextureWidth = 0
         self.mTextureHeight = 0
         self.mImageWidth = 0
         self.mImageHeight = 0
+        
+    def lock(self):
+        if self.mPixels is None and self.mTextureID != 0:
+            glBindTexture( GL_TEXTURE_2D, self.mTextureID )
+            rawPixels = glGetTexImage( GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE )
+            self.mPixels = np.frombuffer(rawPixels, dtype='S4').reshape(self.mTextureHeight, self.mTextureWidth)
+            self.mPixels.flags.writeable = True
+            glBindTexture( GL_TEXTURE_2D, 0 )
+            return True
+        return False
+        
+    def unlock(self):
+        if self.mPixels is not None and self.mTextureID != 0:
+            glBindTexture( GL_TEXTURE_2D, self.mTextureID )
+            glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, self.mTextureWidth, self.mTextureHeight, \
+                GL_RGBA, GL_UNSIGNED_BYTE, np.ascontiguousarray(self.mPixels).data )
+            self.mPixels = None
+            glBindTexture( GL_TEXTURE_2D, 0 )
+            return True
+        return False
+        
+    def getPixel32(self, x, y):
+        return self.mPixels[ y, x ]
+        
+    def setPixel32(self, x, y, pixel):
+        self.mPixels[ y, x ] = pixel
         
     def render(self, x, y, clip = None):
         if self.mTextureID != 0:

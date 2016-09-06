@@ -20,6 +20,9 @@ def initGL():
     glLoadIdentity()
     glClearColor(0., 0., 0., 1.)
     glEnable(GL_TEXTURE_2D)
+    glEnable(GL_BLEND)
+    glDisable(GL_DEPTH_TEST)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     
     error = glGetError()
     if error != GL_NO_ERROR:
@@ -28,17 +31,9 @@ def initGL():
     return True
     
 def loadMedia():
-    if not gCircleTexture.loadTextureFromFile(imageName='circle.png'):
-        print('Unable to load non-power-of-two texture!')
+    if not gCircleTexture.loadTextureFromFileWithColorKey(imName='circle.png', rgba=b'\x00\xFF\xFF\xFF'):
+        print('Unable to load circle texture!')
         return False
-        
-    gCircleTexture.lock()
-    targetColor = b'\x00\xFF\xFF\xFF'
-    gCircleTexture.mPixels[ gCircleTexture.mPixels == targetColor ] = b'\x00\x00\x00\x00'
-    gMask = np.fromfunction(lambda x, y: x%10 != y%10, \
-        (gCircleTexture.mTextureHeight, gCircleTexture.mTextureWidth))
-    gCircleTexture.mPixels[ gMask ] = b'\x00\x00\x00\x00'
-    gCircleTexture.unlock()
     return True
     
 def update():
@@ -46,6 +41,7 @@ def update():
     
 def render():
     glClear(GL_COLOR_BUFFER_BIT)
+    glColor4f( 1., 1., 1., 0.5 )
     x = (SCREEN_WIDTH - gCircleTexture.mImageWidth)/2
     y = (SCREEN_HEIGHT - gCircleTexture.mImageHeight)/2
     gCircleTexture.render(x, y)

@@ -15,7 +15,7 @@ def main():
     glutInitDisplayMode(GLUT_DOUBLE)
     glutInitWindowSize(H.SCREEN_WIDTH, H.SCREEN_HEIGHT)
     # glutFullScreen()
-    glutCreateWindow('OpenGL')
+    glutCreateWindow(b'OpenGL')
     
     if not H.initGL():
         print('Unable to initialize graphics library!')

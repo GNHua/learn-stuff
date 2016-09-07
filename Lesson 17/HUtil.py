@@ -54,12 +54,14 @@ def loadMedia():
     global gVertexBuffer
     gVertexBuffer = glGenBuffers(1)
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer)
-    glBufferData(GL_ARRAY_BUFFER, gQuadVertices.size, gQuadVertices.tostring(), GL_STATIC_DRAW)
+    glBufferData(GL_ARRAY_BUFFER, gQuadVertices.nbytes, \
+        gQuadVertices.tostring(), GL_STATIC_DRAW)
     
     global gIndexBuffer
     gIndexBuffer = glGenBuffers(1)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer)
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gIndices.size, gIndices.tostring(), GL_STATIC_DRAW)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gIndices.nbytes, \
+        gIndices.tostring(), GL_STATIC_DRAW)
     
     return True
     
@@ -72,11 +74,11 @@ def render():
     
     global gVertexBuffer
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer)
-    glVertexPointer(2, GL_FLOAT, 0, 0)
+    glVertexPointer(2, GL_FLOAT, 0, None)
     
     global gIndexBuffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer)
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, 0)
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, None)
     
     glDisableClientState(GL_VERTEX_ARRAY)
     glutSwapBuffers()

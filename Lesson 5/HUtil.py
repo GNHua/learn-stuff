@@ -42,7 +42,7 @@ def loadMedia():
     # checkerBoard[20,:] = np.ones(CHECKERBOARD_WIDTH, dtype=np.uint8) * 255
     # checkerBoard[:,20] = np.ones(CHECKERBOARD_HEIGHT, dtype=np.uint8) * 255
     
-    if not gCheckerBoardTexture.loadTextureFromPixels32(np.ascontiguousarray(checkerBoard).data, CHECKERBOARD_WIDTH, CHECKERBOARD_HEIGHT):
+    if not gCheckerBoardTexture.loadTextureFromPixels32(checkerBoard.tostring(), CHECKERBOARD_WIDTH, CHECKERBOARD_HEIGHT):
         print('Unable to load checkerboard texture!')
         return False
     return True

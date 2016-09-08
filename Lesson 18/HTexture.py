@@ -131,7 +131,7 @@ class HTexture:
             vDataBytes = vData[0].tostring() + vData[1].tostring() + vData[2].tostring() + vData[3].tostring()
             glBufferData(GL_ARRAY_BUFFER, 4 * vData[0].size(), vDataBytes, GL_DYNAMIC_DRAW)
             
-            self.iVBOID = glGenBuffers(1)
+            self.mIBOID = glGenBuffers(1)
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.mIBOID)
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, iData.nbytes, iData.tostring(), GL_DYNAMIC_DRAW)
             

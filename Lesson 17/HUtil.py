@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import numpy as np
+from OpenGL.arrays import vbo
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
@@ -11,6 +12,9 @@ gQuadVertices = np.zeros((4, 2), dtype=GLfloat)
 gIndices = np.zeros(4, dtype=GLuint)
 gVertexBuffer = 0
 gIndexBuffer = 0
+
+gVBO = vbo.VBO(data=gQuadVertices.tostring(), usage='GL_STATIC_DRAW', target='GL_ARRAY_BUFFER')
+gIBO = vbo.VBO(data=gIndices.tostring(), usage='GL_STATIC_DRAW', target='GL_ELEMENT_ARRAY_BUFFER')
 
 def initGL():
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -50,18 +54,14 @@ def loadMedia():
     gIndices[ 1 ] = 1
     gIndices[ 2 ] = 2
     gIndices[ 3 ] = 3
+        
+    gVBO.bind()
+    gVBO.set_array(data=gQuadVertices.tostring())
+    gVBO.copy_data()
     
-    global gVertexBuffer
-    gVertexBuffer = glGenBuffers(1)
-    glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer)
-    glBufferData(GL_ARRAY_BUFFER, gQuadVertices.nbytes, \
-        gQuadVertices.tostring(), GL_STATIC_DRAW)
-    
-    global gIndexBuffer
-    gIndexBuffer = glGenBuffers(1)
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer)
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gIndices.nbytes, \
-        gIndices.tostring(), GL_STATIC_DRAW)
+    gIBO.bind()
+    gIBO.set_array(data=gIndices.tostring())
+    gIBO.copy_data()
     
     return True
     
@@ -72,12 +72,9 @@ def render():
     glClear(GL_COLOR_BUFFER_BIT)
     glEnableClientState(GL_VERTEX_ARRAY)
     
-    global gVertexBuffer
-    glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer)
+    gVBO.bind()
     glVertexPointer(2, GL_FLOAT, 0, None)
-    
-    global gIndexBuffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer)
+    gIBO.bind()
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, None)
     
     glDisableClientState(GL_VERTEX_ARRAY)

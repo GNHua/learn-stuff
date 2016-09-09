@@ -4,6 +4,7 @@ from OpenGL.GLUT import *
 from PIL import Image
 import numpy as np
 from HVertexData2D import HVertexData2D
+from OpenGL.arrays import vbo
 
 def next_p2(num):
     temp = 1
@@ -19,8 +20,8 @@ class HTexture:
         self.mTextureHeight = 0
         self.mImageWidth = 0
         self.mImageHeight = 0
-        self.mVBOID = 0
-        self.mIBOID = 0
+        self.mVBO = None
+        self.mIBO = None
         
     def loadTextureFromFile(self, imageName='texture.png'):
         im = Image.open(imageName)
@@ -120,28 +121,22 @@ class HTexture:
         return False
         
     def initVBO(self):
-        if self.mTextureID != 0 and self.mVBOID == 0:
+        if self.mTextureID != 0 and self.mVBO is None:
             vData = []
             for i in range(4):
                 vData.append(HVertexData2D())  
             iData = np.arange(4, dtype=GLuint)
             
-            self.mVBOID = glGenBuffers(1)
-            glBindBuffer(GL_ARRAY_BUFFER, self.mVBOID)
             vDataBytes = vData[0].tostring() + vData[1].tostring() + vData[2].tostring() + vData[3].tostring()
-            glBufferData(GL_ARRAY_BUFFER, 4 * vData[0].size(), vDataBytes, GL_DYNAMIC_DRAW)
-            
-            self.mIBOID = glGenBuffers(1)
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.mIBOID)
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, iData.nbytes, iData.tostring(), GL_DYNAMIC_DRAW)
-            
-            glBindBuffer(GL_ARRAY_BUFFER, 0)
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+            self.mVBO = vbo.VBO(data=vDataBytes, usage='GL_DYNAMIC_DRAW', target='GL_ARRAY_BUFFER')
+            self.mIBO = vbo.VBO(data=iData.tostring(), usage='GL_DYNAMIC_DRAW', target='GL_ELEMENT_ARRAY_BUFFER')
             
     def freeVBO(self):
-        if self.mVBOID != 0:
-            glDeleteBuffers(1, [self.mVBOID])
-            glDeleteBuffers(1, [self.mIBOID])
+        if self.mVBO is not None:
+            self.mVBO.delete()
+            self.mVBO = None
+            self.mIBO.delete()
+            self.mIBO = None
         
     def getPixel32(self, x, y):
         return self.mPixels[ y, x ]
@@ -171,7 +166,7 @@ class HTexture:
             vData = []
             for i in range(4):
                 vData.append(HVertexData2D())
-                
+
             # Texture coordinates
             vData[ 0 ].texCoord.s =  texLeft; vData[ 0 ].texCoord.t =    texTop;
             vData[ 1 ].texCoord.s = texRight; vData[ 1 ].texCoord.t =    texTop;
@@ -188,13 +183,14 @@ class HTexture:
             glEnableClientState( GL_VERTEX_ARRAY )
             glEnableClientState( GL_TEXTURE_COORD_ARRAY )
             
-            glBindBuffer( GL_ARRAY_BUFFER, self.mVBOID )
+            self.mVBO.bind()
             vDataBytes = vData[0].tostring() + vData[1].tostring() + vData[2].tostring() + vData[3].tostring()
-            glBufferSubData( GL_ARRAY_BUFFER, 0, 4 * vData[0].size(), vDataBytes )
-            glTexCoordPointer(2, GL_FLOAT, vData[0].size(), vData[0].texOffset())
-            glVertexPointer(2, GL_FLOAT, vData[0].size(), vData[0].posOffset())
+            self.mVBO.set_array(data=vDataBytes)
+            self.mVBO.copy_data()
+            glVertexPointer(2, GL_FLOAT, vData[0].size(), self.mVBO + vData[0].posOffset())
+            glTexCoordPointer(2, GL_FLOAT, vData[0].size(), self.mVBO + vData[0].texOffset())
             
-            glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, self.mIBOID )
-            glDrawElements( GL_QUADS, 4, GL_UNSIGNED_INT, None )
+            self.mIBO.bind()
+            glDrawElements( GL_QUADS, 4, GL_UNSIGNED_INT, self.mIBO )
             glDisableClientState( GL_TEXTURE_COORD_ARRAY )
             glDisableClientState( GL_VERTEX_ARRAY )

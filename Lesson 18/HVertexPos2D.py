@@ -11,8 +11,12 @@ class HVertexPos2D:
     def size(self):
         return 2 * sizeof(GLfloat)
 
-    def get_foo(self): return self.__foo
-    def set_foo(self, value): self.__foo = GLfloat(value)
-    def del_foo(self): del self.__foo
-    x = property(get_foo, set_foo, del_foo)
-    y = property(get_foo, set_foo, del_foo)
+    def get_x(self): return self.__x
+    def set_x(self, value): self.__x = GLfloat(value)
+    def del_x(self): del self.__x
+    x = property(get_x, set_x, del_x)
+    
+    def get_y(self): return self.__y
+    def set_y(self, value): self.__y = GLfloat(value)
+    def del_y(self): del self.__y
+    y = property(get_y, set_y, del_y)

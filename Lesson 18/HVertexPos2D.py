@@ -6,17 +6,10 @@ class HVertexPos2D:
         self.y = y
         
     def tostring(self):
-        return bytes(self.x) + bytes(self.y)
+        return toBytes(self.x) + toBytes(self.y)
         
     def size(self):
         return 2 * sizeof(GLfloat)
 
-    def get_x(self): return self.__x
-    def set_x(self, value): self.__x = GLfloat(value)
-    def del_x(self): del self.__x
-    x = property(get_x, set_x, del_x)
-    
-    def get_y(self): return self.__y
-    def set_y(self, value): self.__y = GLfloat(value)
-    def del_y(self): del self.__y
-    y = property(get_y, set_y, del_y)
+def toBytes(val):
+    return bytes(GLfloat(val))

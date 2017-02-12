@@ -57,13 +57,9 @@ if __name__ == '__main__':
     g = GlWin()
     g.main()
     for i in range(5):
-        # glutPostRedisplay()
         g.render()
         g.i += 1
         time.sleep(0.5)
-    print('before leave main loop')
-    glutLeaveMainLoop()
-    print('after leave main loop')
     g.i = 9
     
     time.sleep(3)

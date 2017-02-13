@@ -19,6 +19,8 @@ def initGL():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     glClearColor(0., 0., 0., 1.)
+    
+    ###
     glEnable(GL_TEXTURE_2D)
     
     error = glGetError()
@@ -36,11 +38,6 @@ def loadMedia():
     c = np.fromfunction(lambda x, y: (x//16 + y//16)%2, (CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
     checkerBoard[c == 0] = color1
     checkerBoard[c == 1] = color2
-    # checkerBoard = np.fromfunction(lambda x, y: (x//16 + y//16)%2, (CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8) * 127 + \
-    #     np.ones((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8) * 128
-    # checkerBoard = np.zeros((CHECKERBOARD_HEIGHT, CHECKERBOARD_WIDTH), dtype=np.uint8)
-    # checkerBoard[20,:] = np.ones(CHECKERBOARD_WIDTH, dtype=np.uint8) * 255
-    # checkerBoard[:,20] = np.ones(CHECKERBOARD_HEIGHT, dtype=np.uint8) * 255
     
     if not gCheckerBoardTexture.loadTextureFromPixels32(checkerBoard.tostring(), CHECKERBOARD_WIDTH, CHECKERBOARD_HEIGHT):
         print('Unable to load checkerboard texture!')

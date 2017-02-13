@@ -45,3 +45,6 @@ class HTexture:
             glTexCoord2f( 1., 1. ); glVertex2f( self.mTextureWidth, self.mTextureHeight );
             glTexCoord2f( 0., 1. ); glVertex2f(                 0., self.mTextureHeight );
             glEnd()
+            
+    def __del__(self):
+        self.freeTexture()

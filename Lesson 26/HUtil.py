@@ -67,12 +67,15 @@ def render():
 
     # Replace where rendered
     glStencilOp( GL_REPLACE, GL_REPLACE, GL_REPLACE )
-
+    
+    global gPolygonX
+    global gPolygonY
+    global gPolygonAngle
     # Render stencil triangle
     glTranslatef( gPolygonX, gPolygonY, 0. );
     glRotatef( gPolygonAngle, 0., 0., 1. );
     glBegin( GL_TRIANGLES );
-    glVertex2f(           -0. / 4., -SCREEN_HEIGHT / 4. );
+    glVertex2f(            -0. / 4., -SCREEN_HEIGHT / 4. );
     glVertex2f(   SCREEN_WIDTH / 4.,  SCREEN_HEIGHT / 4. );
     glVertex2f(  -SCREEN_WIDTH / 4.,  SCREEN_HEIGHT / 4. );
     glEnd();
@@ -80,6 +83,7 @@ def render():
     # Reenable color
     glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
 
+    global gStencilRenderOp
     # Where a 1 was not rendered
     glStencilFunc( gStencilRenderOp, 1, 1 );
 
@@ -96,8 +100,9 @@ def render():
     glutSwapBuffers()
     
 def handleKeys(key, x, y):
+    global gStencilRenderOp
     # If the user presses q
-    if key == 'q':
+    if key == b'q':
         # Cycle through stencil operations
         if gStencilRenderOp == GL_NOTEQUAL:
             # Render where stencil polygon was rendered
@@ -110,6 +115,8 @@ def handleKeys(key, x, y):
             gStencilRenderOp = GL_NOTEQUAL;
             
 def handleMouseMotion(x, y):
+    global gPolygonX
+    global gPolygonY
     # Set polygon position
     gPolygonX = x;
     gPolygonY = y;

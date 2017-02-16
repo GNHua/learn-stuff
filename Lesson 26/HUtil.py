@@ -112,7 +112,9 @@ def handleKeys(key, x, y):
             gStencilRenderOp = GL_ALWAYS;
         elif gStencilRenderOp == GL_ALWAYS:
             # Render where stencil polygon was not rendered
-            gStencilRenderOp = GL_NOTEQUAL;
+            gStencilRenderOp = GL_NEVER;
+        elif gStencilRenderOp == GL_NEVER:
+            gStencilRenderOp = GL_NOTEQUAL
             
 def handleMouseMotion(x, y):
     global gPolygonX

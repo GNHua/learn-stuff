@@ -38,10 +38,10 @@ def loadGP():
         return False
         
     gPlainPolygonProgram2D.bind()
-    gPlainPolygonProgram2D.setProjection(m.make_ortho_matrix(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1))
+    gPlainPolygonProgram2D.setProjection(m.make_ortho_matrix([0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1]))
     gPlainPolygonProgram2D.updateProjection()
-	gPlainPolygonProgram2D.setModelView(np.identity(4, dtype=GLfloat))
-	gPlainPolygonProgram2D.updateModelView()
+    gPlainPolygonProgram2D.setModelView(np.identity(4, dtype=GLfloat))
+    gPlainPolygonProgram2D.updateModelView()
     return True
     
 def loadMedia():
@@ -80,15 +80,15 @@ def update():
     
 def render():
     glClear( GL_COLOR_BUFFER_BIT )
-    glLoadIdentity()
 
-    glTranslatef( SCREEN_WIDTH / 2., SCREEN_HEIGHT / 2., 0. )
     global gPlainPolygonProgram2D
+    gPlainPolygonProgram2D.setModelView(m.make_translate_matrix([SCREEN_WIDTH/2., SCREEN_HEIGHT/2., 0]))
+    gPlainPolygonProgram2D.updateModelView()
     gPlainPolygonProgram2D.setColor(0., 1., 1., 1.)
     
     glEnableClientState(GL_VERTEX_ARRAY)
-    glVertexPointer( 2, GL_FLOAT, 0, None )
-    glDrawElements( GL_QUADS, 4, GL_UNSIGNED_INT, None )
+    glVertexPointer(2, GL_FLOAT, 0, None)
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, None)
     glDisableClientState(GL_VERTEX_ARRAY)
     
     glutSwapBuffers()

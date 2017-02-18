@@ -1,6 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+import numpy as np
 
 class HShaderProgram:
     def __init__(self):
@@ -104,12 +105,12 @@ class HPlainPolygonProgram2D(HShaderProgram):
         self.mPolygonColorLocation = glGetUniformLocation(self.mProgramID, "HPolygonColor")
         if self.mPolygonColorLocation == -1:
             print("%s is not a valid glsl program variable!" % "HPolygonColor")
-    	self.mProjectionMatrixLocation = glGetUniformLocation(self.mProgramID, "HProjectionMatrix")
-    	if self.mProjectionMatrixLocation == -1:
-    		print("%s is not a valid glsl program variable!" % "HProjectionMatrix")
-    	self.mModelViewMatrixLocation = glGetUniformLocation(self.mProgramID, "HModelViewMatrix")
-    	if self.mModelViewMatrixLocation == -1:
-    		print("%s is not a valid glsl program variable!" % "LModelViewMatrix")
+        self.mProjectionMatrixLocation = glGetUniformLocation(self.mProgramID, "HProjectionMatrix")
+        if self.mProjectionMatrixLocation == -1:
+            print("%s is not a valid glsl program variable!" % "HProjectionMatrix")
+        self.mModelViewMatrixLocation = glGetUniformLocation(self.mProgramID, "HModelViewMatrix")
+        if self.mModelViewMatrixLocation == -1:
+            print("%s is not a valid glsl program variable!" % "HModelViewMatrix")
             
         return True
         
@@ -132,4 +133,4 @@ class HPlainPolygonProgram2D(HShaderProgram):
         glUniformMatrix4fv(self.mProjectionMatrixLocation, 1, GL_FALSE, self.mProjectionMatrix)
         
     def updateModelView(self):
-    	glUniformMatrix4fv(self.mModelViewMatrixLocation, 1, GL_FALSE, self.mModelViewMatrix)
+        glUniformMatrix4fv(self.mModelViewMatrixLocation, 1, GL_FALSE, self.mModelViewMatrix)

@@ -11,7 +11,7 @@ def runMainLoop(val):
     
 def main():
     glutInit(sys.argv)
-    glutInitContextVersion(2, 1)
+    glutInitContextVersion(3, 1)
     glutInitDisplayMode( GLUT_DOUBLE )
     glutInitWindowSize(H.SCREEN_WIDTH, H.SCREEN_HEIGHT)
     # glutFullScreen()

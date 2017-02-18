@@ -108,7 +108,7 @@ def render():
     global gIBO
     gMultiColorPolygonProgram2D.setVertexPointer(HMultiColorVertex2D.size, gVBO+HMultiColorVertex2D.posOffset)
     gMultiColorPolygonProgram2D.setColorPointer(HMultiColorVertex2D.size, gVBO+HMultiColorVertex2D.colorOffset);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, None)
+    glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, None)
     gMultiColorPolygonProgram2D.disableVertexPointer()
     gMultiColorPolygonProgram2D.disableColorPointer()
     glutSwapBuffers()

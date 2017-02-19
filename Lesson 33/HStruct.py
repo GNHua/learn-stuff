@@ -1,29 +1,51 @@
+from inspect import Parameter, Signature
 from OpenGL.GL import GLfloat, sizeof
 from struct import pack
 
-class BaseStruct:
-    def __init__(self, attr_list):
-        self.attr_list = attr_list
-        for i in attr_list:
-            setattr(self, i, 0.)
+def make_signature(names):
+    return Signature(Parameter(name, Parameter.POSITIONAL_OR_KEYWORD, default=0.)
+                               for name in names)
+
+class MetaStruct(type):
+    def __new__(cls, name, bases, clsdict):
+        clsobj = super().__new__(cls, name, bases, clsdict)
+        sig = make_signature(clsobj._fields)
+        setattr(clsobj, '__signature__', sig)
+        return clsobj
+
+class BaseStruct(metaclass=MetaStruct):
+    _fields = []
+    def __init__(self, *args, **kwargs):
+        bound = self.__signature__.bind(*args, **kwargs)
+        bound.apply_defaults()
+        for name, val in bound.arguments.items():
+            setattr(self, name, val)
             
     @property
     def bytes(self):
-        return pack('f' * len(self.attr_list), *[self.__dict__[key] for key in self.attr_list])
+        return pack('f' * len(self._fields), *[self.__dict__[key] for key in self._fields])
         
     @property
     def size(self):
-        return len(self.attr_list) * sizeof(GLfloat)
+        return len(self._fields) * sizeof(GLfloat)
+        
+    def __add__(self, other):
+        if isinstance(other, BaseStruct):
+            return self.bytes + other.bytes
+        elif isinstance(other, bytes):
+            return self.bytes + other
+            
+    def __radd__(self, other):
+        if isinstance(other, BaseStruct):
+            return other.bytes + self.bytes
+        elif isinstance(other, bytes):
+            return other + self.bytes
             
 class HVertexPos2D(BaseStruct):
-    def __init__(self, x=0., y=0.):
-        super().__init__(attr_list=['x', 'y'])
-        self.x, self.y = x, y
+    _fields = ['x', 'y']
 
 class HColorRGBA(BaseStruct):
-    def __init__(self, r=0., g=0., b=0., a=0.):
-        super().__init__(attr_list=['r', 'g', 'b', 'a'])
-        self.r, self.g, self.b, self.a = r, g, b, a
+    _fields = ['r', 'g', 'b', 'a']
         
 class HMultiColorVertex2D:
     size = 6 * sizeof(GLfloat)
@@ -36,12 +58,12 @@ class HMultiColorVertex2D:
         
     def __add__(self, other):
         if isinstance(other, HMultiColorVertex2D):
-            return self.pos.bytes + self.rgba.bytes + other.pos.bytes + other.rgba.bytes
+            return self.pos + self.rgba + other.pos + other.rgba
         elif isinstance(other, bytes):
-            return self.pos.bytes + self.rgba.bytes + other
+            return self.pos + self.rgba + other
             
     def __radd__(self, other):
         if isinstance(other, HMultiColorVertex2D):
-            return other.pos.bytes + other.rgba.bytes + self.pos.bytes + self.rgba.bytes
+            return other.pos + other.rgba + self.pos + self.rgba
         elif isinstance(other, bytes):
-            return other + self.pos.bytes + self.rgba.bytes
+            return other + self.pos + self.rgba

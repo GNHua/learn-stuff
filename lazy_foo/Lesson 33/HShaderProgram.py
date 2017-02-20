@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import numpy as np
+from OpenGL.GL import shaders
 
 class HShaderProgram:
     def __init__(self):
@@ -28,38 +29,6 @@ class HShaderProgram:
     def unbind(self):
         glUseProgram( None )
         
-    def printProgramLog(self, program):
-        if glIsProgram( program ):
-            infoLog = glGetProgramInfoLog( program )
-            print(infoLog)
-        else:
-            print('Name %d is not a program' % program)
-            
-    def printShaderLog(self, shader):
-        if glIsShader(shader):
-            infoLog = glGetShaderInfoLog( shader )
-            print(infoLog)
-        else:
-            print('Name %d is not a shader' % shader)
-            
-    def loadShaderFromFile(self, path, shaderType):
-        shaderID = glCreateShader(shaderType)
-        try:
-            shaderSource = open(path, 'r').read()
-        except FileNotFoundError:
-            print('Unable to open file %s' % path)
-            glDeleteShader(shaderID)
-            return None
-        glShaderSource(shaderID, shaderSource)
-        glCompileShader(shaderID)
-        
-        if glGetShaderiv(shaderID, GL_COMPILE_STATUS) != GL_TRUE:
-            print('Unable to compile shader %d!' % shaderID)
-            self.printShaderLog(shaderID)
-            glDeleteShader(shaderID)
-            shaderID = None
-        return shaderID
-            
 class HMultiColorPolygonProgram2D(HShaderProgram):
     def __init__(self):
         super().__init__()
@@ -70,37 +39,12 @@ class HMultiColorPolygonProgram2D(HShaderProgram):
         self.mModelViewMatrix = None
         self.mModelViewMatrixLocation = None
         
-    def loadProgram(self):
-        self.mProgramID = glCreateProgram()
-        vertexShader = self.loadShaderFromFile('HMultiColorPolygonProgram2D.glvs', GL_VERTEX_SHADER)
-        if vertexShader is None:
-            glDeleteProgram(self.mProgramID)
-            self.mProgramID = None
-            return False
-        glAttachShader( self.mProgramID, vertexShader )
-
-        fragmentShader = self.loadShaderFromFile('HMultiColorPolygonProgram2D.glfs', GL_FRAGMENT_SHADER)
-        if fragmentShader is None:
-            glDeleteShader(vertexShader)
-            glDeleteProgram(self.mProgramID)
-            self.mProgramID = None
-            return False
-        glAttachShader( self.mProgramID, fragmentShader )
-
-        # Link program
-        glLinkProgram( self.mProgramID )
-
-        if glGetProgramiv( self.mProgramID, GL_LINK_STATUS ) != GL_TRUE:
-            print('Error linking program %d!' % self.mProgramID)
-            self.printProgramLog(self.mProgramID)
-            glDeleteShader(vertexShader)
-            glDeleteShader(fragmentShader)
-            glDeleteProgram(self.mProgramID)
-            self.mProgramID = None
-            return False
-
-        glDeleteShader(vertexShader)
-        glDeleteShader(fragmentShader)
+    def loadProgram(self):        
+        vertShaderSource = open('HMultiColorPolygonProgram2D.glvs', 'r').read()
+        vertexShader = shaders.compileShader(vertShaderSource, GL_VERTEX_SHADER)
+        fragShaderSource = open('HMultiColorPolygonProgram2D.glfs', 'r').read()
+        fragexShader = shaders.compileShader(fragShaderSource, GL_FRAGMENT_SHADER)
+        self.mProgramID = shaders.compileProgram(vertexShader, fragexShader)
         
         # Get variable location
         self.mVertexPos2DLocation = glGetAttribLocation(self.mProgramID, "HVertexPos2D")

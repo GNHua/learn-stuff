@@ -24,9 +24,11 @@ def main():
     window = glfw.create_window(WIDTH, HEIGHT, "LearnOpenGL", None, None)
     glfw.make_context_current(window)
     glfw.set_key_callback(window, key_callback)
+    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_HIDDEN)
     
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
+    glClearColor(0.2, 0.3, 0.3, 1.)
     
     vertices = np.array([[ 0.5,  0.5, 0.],
                          [ 0.5, -0.5, 0.],
@@ -53,13 +55,12 @@ def main():
     fragShader = shaders.compileShader(fragShaderSource, GL_FRAGMENT_SHADER)
     shaderProg = shaders.compileProgram(vertShader, fragShader)
     glBindVertexArray(0)
+    glUseProgram(shaderProg)
     
     while not glfw.window_should_close(window):
         glfw.poll_events()
         
-        glClearColor(0.2, 0.3, 0.3, 1.)
         glClear(GL_COLOR_BUFFER_BIT)
-        glUseProgram(shaderProg)
         glBindVertexArray(_VAO)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
         glBindVertexArray(0)

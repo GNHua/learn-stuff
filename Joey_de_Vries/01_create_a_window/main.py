@@ -15,7 +15,7 @@ def handleKeys(key, x, y):
 
 def main():
     glutInit(sys.argv)
-    glutInitContextVersion(3, 1)
+    glutInitContextVersion(3, 3)
     glutInitDisplayMode( GLUT_DOUBLE )
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT)
     glutCreateWindow(b'OpenGL')

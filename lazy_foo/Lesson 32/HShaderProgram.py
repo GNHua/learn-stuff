@@ -71,14 +71,14 @@ class HPlainPolygonProgram2D(HShaderProgram):
         
     def loadProgram(self):
         self.mProgramID = glCreateProgram()
-        vertexShader = self.loadShaderFromFile('HPlainPolygonProgram2D.glvs', GL_VERTEX_SHADER)
+        vertexShader = self.loadShaderFromFile('HPlainPolygonProgram2D.vert', GL_VERTEX_SHADER)
         if vertexShader is None:
             glDeleteProgram(self.mProgramID)
             self.mProgramID = None
             return False
         glAttachShader( self.mProgramID, vertexShader )
 
-        fragmentShader = self.loadShaderFromFile('HPlainPolygonProgram2D.glfs', GL_FRAGMENT_SHADER)
+        fragmentShader = self.loadShaderFromFile('HPlainPolygonProgram2D.frag', GL_FRAGMENT_SHADER)
         if fragmentShader is None:
             glDeleteShader(vertexShader)
             glDeleteProgram(self.mProgramID)

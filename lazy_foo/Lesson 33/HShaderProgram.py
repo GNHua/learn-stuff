@@ -40,9 +40,9 @@ class HMultiColorPolygonProgram2D(HShaderProgram):
         self.mModelViewMatrixLocation = None
         
     def loadProgram(self):        
-        vertShaderSource = open('HMultiColorPolygonProgram2D.glvs', 'r').read()
+        vertShaderSource = open('HMultiColorPolygonProgram2D.vert', 'r').read()
         vertexShader = shaders.compileShader(vertShaderSource, GL_VERTEX_SHADER)
-        fragShaderSource = open('HMultiColorPolygonProgram2D.glfs', 'r').read()
+        fragShaderSource = open('HMultiColorPolygonProgram2D.frag', 'r').read()
         fragexShader = shaders.compileShader(fragShaderSource, GL_FRAGMENT_SHADER)
         self.mProgramID = shaders.compileProgram(vertexShader, fragexShader)
         

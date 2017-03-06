@@ -29,9 +29,9 @@ def makeEBO(indices):
     return EBO
     
 def makeShaderProg(vert, frag):
-    vertShaderSource = open('triangle.vert', 'r').read()
+    vertShaderSource = open(vert, 'r').read()
     vertShader = shaders.compileShader(vertShaderSource, GL_VERTEX_SHADER)
-    fragShaderSource = open('triangle.frag', 'r').read()
+    fragShaderSource = open(frag, 'r').read()
     fragShader = shaders.compileShader(fragShaderSource, GL_FRAGMENT_SHADER)
     shaderProg = shaders.compileProgram(vertShader, fragShader, validate=False)
     return shaderProg

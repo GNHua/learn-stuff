@@ -9,14 +9,12 @@ HEIGHT = 600
 class Triangle:
     def __init__(self):
         self.prepareWindow()
-        
-        self.vertices = np.array([[ 0.5, -0.5, 0., 1., 0., 0.],
-                                  [-0.5, -0.5, 0., 0., 1., 0.],
-                                  [ 0. ,  0.5, 0., 0., 0., 1.]], dtype=GLfloat)
-        self.indices = np.array([0, 1, 2], dtype=GLuint)
-        self.texCoords = np.array([[0. , 0.],
-                                   [1. , 0.],
-                                   [0.5, 1.], dtype=GLfloat)
+                                    # Positions       # Colors         # Texture Coords
+        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0]    # Top Right
+                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0]    # Bottom Right
+                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0]    # Bottom Left
+                                  [-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
+                                  dtype=GLfloat)   
         self.loadSP()
     
     def prepareWindow(self):

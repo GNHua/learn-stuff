@@ -16,7 +16,7 @@ class Triangle:
         self.indices = np.array([0, 1, 2], dtype=GLuint)
         self.texCoords = np.array([[0. , 0.],
                                    [1. , 0.],
-                                   [0.5, 1.], dtype=GLfloat)
+                                   [0.5, 1.]], dtype=GLfloat)
         self.loadSP()
     
     def prepareWindow(self):

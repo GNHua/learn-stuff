@@ -1,6 +1,7 @@
 import glfw
 from OpenGL.GL import *
 import numpy as np
+from PIL import Image
 from util import *
 
 WIDTH = 800
@@ -10,12 +11,17 @@ class Triangle:
     def __init__(self):
         self.prepareWindow()
                                     # Positions       # Colors         # Texture Coords
-        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0]    # Top Right
-                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0]    # Bottom Right
-                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0]    # Bottom Left
+        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0],   # Top Right
+                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0],   # Bottom Right
+                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0],   # Bottom Left
                                   [-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
-                                  dtype=GLfloat)   
-        self.loadSP()
+                                  dtype=GLfloat)
+        self.indices = np.array([[0, 1, 3],
+                                 [1, 2, 3]], dtype=GLuint)
+        self.shaderProg = makeShaderProg('texture.vert', 'texture.frag', validate=False)
+        self.loadVAO()
+        self.texture = self.makeTexture('container.jpg')
+        self.texture2 = self.makeTexture('wall.jpg')
     
     def prepareWindow(self):
         self.window = glfw.create_window(WIDTH, HEIGHT, "LearnOpenGL", None, None)
@@ -27,26 +33,42 @@ class Triangle:
         glViewport(0, 0, width, height)
         glClearColor(0.2, 0.3, 0.3, 1.)
         
-    def loadSP(self):
-        self.shaderProg = makeShaderProg('triangle.vert', 'triangle.frag', validate=False)
-        self._VAO = glGenVertexArrays(1)
+    def loadVAO(self):
+        self.VAO = glGenVertexArrays(1)
+        with bindVAO(self.VAO):
+            _VBO = makeVBO(self.vertices)
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO)
+            glEnableVertexAttribArray(0)
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 3 * sizeof(GLfloat))
+            glEnableVertexAttribArray(1)
+            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 6 * sizeof(GLfloat))
+            glEnableVertexAttribArray(2)
+            _VBO.unbind()
+            _EBO = makeEBO(self.indices)
+            
+    def makeTexture(self, image):
+        im = Image.open(image)
+        w, h = im.size
+        try:
+            im_bytes = im.tobytes("raw", "RGBA", 0, -1)
+        except SystemError:
+            im_bytes = im.tobytes("raw", "RGBX", 0, -1)
         
-        glBindVertexArray(self._VAO)
-        _VBO = makeVBO(self.vertices)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), _VBO)
-        glEnableVertexAttribArray(0)
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), _VBO + 3 * sizeof(GLfloat))
-        glEnableVertexAttribArray(1)
-        _EBO = makeEBO(self.indices)
-        _VBO.unbind()
-        glBindVertexArray(0)
+        texture = glGenTextures(1)
+        with bindTexture(GL_TEXTURE_2D, texture):
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, im_bytes)
+            glGenerateMipmap(GL_TEXTURE_2D)
+            
+        return texture
             
     def draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
-        with self.shaderProg:
-            glBindVertexArray(self._VAO)
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, None)
-            glBindVertexArray(0)
+        with self.shaderProg, bindTexture(GL_TEXTURE_2D, self.texture), bindVAO(self.VAO):
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
         glfw.swap_buffers(self.window)
     
 def main():

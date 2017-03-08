@@ -5,7 +5,7 @@ from PIL import Image
 from util import *
 
 WIDTH = 800
-HEIGHT = 800
+HEIGHT = 600
     
 class Triangle:
     def __init__(self):
@@ -41,7 +41,7 @@ class Triangle:
             glEnableVertexAttribArray(0)
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 3 * sizeof(GLfloat))
             glEnableVertexAttribArray(1)
-            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 6 * sizeof(GLfloat))
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 6 * sizeof(GLfloat))
             glEnableVertexAttribArray(2)
             _VBO.unbind()
             _EBO = makeEBO(self.indices)

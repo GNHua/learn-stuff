@@ -41,10 +41,8 @@ class Triangle:
             
     def draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
-        with self.shaderProg:
-            glBindVertexArray(self._VAO)
+        with self.shaderProg, bindVAO(self._VAO):
             glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, None)
-            glBindVertexArray(0)
         glfw.swap_buffers(self.window)
     
 def main():

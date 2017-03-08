@@ -5,23 +5,23 @@ from PIL import Image
 from util import *
 
 WIDTH = 800
-HEIGHT = 600
+HEIGHT = 800
     
 class Triangle:
     def __init__(self):
         self.prepareWindow()
                                     # Positions       # Colors         # Texture Coords
-        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0],   # Top Right
-                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0],   # Bottom Right
-                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0],   # Bottom Left
-                                  [-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
+        self.vertices = np.array([[ 1.0,  1.0, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0],   # Top Right
+                                  [ 1.0, -1.0, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0],   # Bottom Right
+                                  [-1.0, -1.0, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0],   # Bottom Left
+                                  [-1.0,  1.0, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
                                   dtype=GLfloat)
         self.indices = np.array([[0, 1, 3],
                                  [1, 2, 3]], dtype=GLuint)
         self.shaderProg = makeShaderProg('texture.vert', 'texture.frag', validate=False)
         self.loadVAO()
-        self.texture = self.makeTexture('container.jpg')
-        self.texture2 = self.makeTexture('wall.jpg')
+        self.texture1 = self.makeTexture('container.jpg')
+        self.texture2 = self.makeTexture('awesomeface.png')
     
     def prepareWindow(self):
         self.window = glfw.create_window(WIDTH, HEIGHT, "LearnOpenGL", None, None)
@@ -67,7 +67,11 @@ class Triangle:
             
     def draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
-        with self.shaderProg, bindTexture(GL_TEXTURE_2D, self.texture), bindVAO(self.VAO):
+        with self.shaderProg, bindVAO(self.VAO), \
+          bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, self.texture1), \
+          bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, self.texture2):
+            glUniform1i(glGetUniformLocation(self.shaderProg, "ourTexture1"), 0);
+            glUniform1i(glGetUniformLocation(self.shaderProg, "ourTexture2"), 1);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
         glfw.swap_buffers(self.window)
     

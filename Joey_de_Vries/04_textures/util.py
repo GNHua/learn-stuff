@@ -50,10 +50,14 @@ class bindVAO:
         glBindVertexArray(0)
         
 class bindTexture:
-    def __init__(self, target, texture):
-        self.target = target
-        self.texture = texture
+    def __init__(self, *args):
+        if len(args) == 2:
+            self.unit = GL_TEXTURE0
+            self.target, self.texture = args
+        elif len(args) == 3:
+            self.unit, self.target, self.texture = args
     def __enter__(self):
+        glActiveTexture(self.unit)
         glBindTexture(self.target, self.texture)
     def __exit__(self, type, value, traceback):
         glBindTexture(self.target, 0)

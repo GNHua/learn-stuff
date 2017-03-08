@@ -3,7 +3,7 @@ from OpenGL.GL import *
 from OpenGL.GL import shaders
 from OpenGL.arrays import vbo
 
-__all__ = ['initGlfw', 'makeVBO', 'makeEBO', 'makeShaderProg']
+__all__ = ['initGlfw', 'makeVBO', 'makeEBO', 'makeShaderProg', 'bindVAO']
 
 def initGlfw():
     glfw.init()
@@ -35,3 +35,11 @@ def makeShaderProg(vert, frag, **kwargs):
     fragShader = shaders.compileShader(fragShaderSource, GL_FRAGMENT_SHADER)
     shaderProg = shaders.compileProgram(vertShader, fragShader, **kwargs)
     return shaderProg
+    
+class bindVAO:
+    def __init__(self, vao):
+        self.vao = vao
+    def __enter__(self):
+        glBindVertexArray(self.vao)
+    def __exit__(self, type, value, traceback):
+        glBindVertexArray(0)

@@ -22,8 +22,8 @@ class Triangle:
                                  [1, 2, 3]], dtype=GLuint)
         self.shaderProg = makeShaderProg('texture.vert', 'texture.frag', validate=False)
         self.loadVAO()
-        self.texture1 = self.makeTexture('container.jpg')
-        self.texture2 = self.makeTexture('awesomeface.png')
+        self.texture1 = self.makeTexture('../images/container.jpg')
+        self.texture2 = self.makeTexture('../images/awesomeface.png')
     
     def prepareWindow(self):
         self.window = glfw.create_window(WIDTH, HEIGHT, "LearnOpenGL", None, None)

@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from util import *
 sys.path.append('../')
-from transformations import translation_matrix, rotation_matrix
+from transformations import translation_matrix, rotation_matrix, scale_matrix
 
 WIDTH = 800
 HEIGHT = 600
@@ -81,6 +81,12 @@ class Triangle:
             transformLoc = glGetUniformLocation(self.shaderProg, 'transform')
             glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform)
             
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
+            
+            _m3 = scale_matrix(np.sin(glfw.get_time()))
+            transform = np.dot(_m1, _m3).T
+            transformLoc = glGetUniformLocation(self.shaderProg, 'transform')
+            glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform)
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
         glfw.swap_buffers(self.window)
     

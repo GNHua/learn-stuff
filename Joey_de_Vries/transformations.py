@@ -340,7 +340,7 @@ def rotation_matrix(angle, direction, point=None, dtype=GLfloat):
     M[:3, :3] = R
     if point is not None:
         # rotation not around origin
-        point = numpy.array(point[:3], dtype=numpy.float64, copy=False)
+        point = numpy.array(point[:3], dtype=dtype, copy=False)
         M[:3, 3] = point - numpy.dot(R, point)
     return M
 
@@ -1752,14 +1752,17 @@ def unit_vector(data, axis=None, out=None, dtype=GLfloat):
     [1.0]
 
     """
+    
+    # For some reason if OpenGL.GL is imported, `numpy.linalg.norm` does not work 
+    # for numpy.float32. (Mac OS X, Anaconda Python 3.5)
     if out is None:
-        data = numpy.array(data, dtype=dtype, copy=True)
+        data = numpy.array(data, dtype=numpy.float64, copy=True)
         if data.ndim == 1:
-            data /= math.sqrt(numpy.dot(data, data))
-            return data
+            data /= numpy.linalg.norm(data)
+            return numpy.array(data, dtype=dtype)
     else:
         if out is not data:
-            out[:] = numpy.array(data, copy=False, dtype=dtype)
+            out[:] = numpy.array(data, copy=False, dtype=numpy.float64)
         data = out
     length = numpy.atleast_1d(numpy.sum(data*data, axis), )
     numpy.sqrt(length, length)
@@ -1924,7 +1927,7 @@ def _import_module(name, package=None, warn=True, prefix='_py_', ignore='_'):
         return True
 
 
-_import_module('_transformations')
+_import_module('transformations')
 
 if __name__ == "__main__":
     import doctest

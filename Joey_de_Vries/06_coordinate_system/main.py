@@ -76,9 +76,9 @@ class Triangle:
             glUniform1i(glGetUniformLocation(self.shaderProg, 'ourTexture1'), 0)
             glUniform1i(glGetUniformLocation(self.shaderProg, 'ourTexture2'), 1)
             
-            model = rotation_matrix(np.radians(-55), [1, 0, 0])
-            view = translation_matrix([0, 0, -3])
-            projection = perspective_matrix(np.radians(45), WIDTH/HEIGHT, 0.1, 100)
+            model = rotation_matrix(np.radians(-55), [1, 0, 0]).T
+            view = translation_matrix([0, 0, -0.1]).T
+            projection = perspective_matrix(np.radians(45), WIDTH/HEIGHT, 0.1, 100).T
             modelLoc = glGetUniformLocation(self.shaderProg, 'model')
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model)
             viewLoc = glGetUniformLocation(self.shaderProg, 'view')

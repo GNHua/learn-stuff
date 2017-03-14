@@ -13,14 +13,8 @@ HEIGHT = 600
 class Triangle:
     def __init__(self):
         self.prepareWindow()
-                                    # Positions       # Colors         # Texture Coords
-        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0],   # Top Right
-                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0],   # Bottom Right
-                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0],   # Bottom Left
-                                  [-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
-                                  dtype=GLfloat)
-        self.indices = np.array([[0, 1, 3],
-                                 [1, 2, 3]], dtype=GLuint)
+        self.vertices = np.loadtxt('vertices.csv', delimiter=',', dtype=GLfloat)
+        self.cubePositions = np.loadtxt('cube_position.csv', delimiter=',', dtype=GLfloat)
         self.shaderProg = makeShaderProg('texture.vert', 'texture.frag', validate=False)
         self.loadVAO()
         self.texture1 = self.makeTexture('../images/container.jpg')
@@ -34,20 +28,18 @@ class Triangle:
     
         width, height = glfw.get_framebuffer_size(self.window)
         glViewport(0, 0, width, height)
+        glEnable(GL_DEPTH_TEST)
         glClearColor(0.2, 0.3, 0.3, 1.)
         
     def loadVAO(self):
         self.VAO = glGenVertexArrays(1)
         with bindVAO(self.VAO):
             _VBO = makeVBO(self.vertices)
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO)
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), _VBO)
             glEnableVertexAttribArray(0)
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 3 * sizeof(GLfloat))
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), _VBO + 3 * sizeof(GLfloat))
             glEnableVertexAttribArray(1)
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), _VBO + 6 * sizeof(GLfloat))
-            glEnableVertexAttribArray(2)
             _VBO.unbind()
-            _EBO = makeEBO(self.indices)
             
     def makeTexture(self, image):
         im = Image.open(image)
@@ -69,24 +61,27 @@ class Triangle:
         return texture
             
     def draw(self):
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         with self.shaderProg, bindVAO(self.VAO), \
           bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, self.texture1), \
           bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, self.texture2):
             glUniform1i(glGetUniformLocation(self.shaderProg, 'ourTexture1'), 0)
             glUniform1i(glGetUniformLocation(self.shaderProg, 'ourTexture2'), 1)
             
-            model = rotation_matrix(np.radians(-55), [1, 0, 0]).T
-            view = translation_matrix([0, 0, -0.1]).T
+            view = translation_matrix([0, 0, -0.5]).T
             projection = perspective_matrix(np.radians(45), WIDTH/HEIGHT, 0.1, 100).T
-            modelLoc = glGetUniformLocation(self.shaderProg, 'model')
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model)
             viewLoc = glGetUniformLocation(self.shaderProg, 'view')
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view)
             projectionLoc = glGetUniformLocation(self.shaderProg, 'projection')
             glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection)
             
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
+            modelLoc = glGetUniformLocation(self.shaderProg, 'model')
+            for i in range(10):
+                model = translation_matrix(self.cubePositions[i]).T
+                angle = 20 * i
+                model = np.dot(rotation_matrix(angle, [1, 0.3, 0.5]).T, model)
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model)
+                glDrawArrays(GL_TRIANGLES, 0, 36)
         glfw.swap_buffers(self.window)
     
 def main():

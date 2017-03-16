@@ -77,14 +77,14 @@ class Triangle:
             
             _m1 = translation_matrix([0.5, -0.5, 0])
             _m2 = rotation_matrix(glfw.get_time() * 1, [0., 0., 1.])
-            transform = np.dot(_m1, _m2).T
+            transform = (_m1 @ _m2).T
             transformLoc = glGetUniformLocation(self.shaderProg, 'transform')
             glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform)
             
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
             
             _m3 = scale_matrix(np.sin(glfw.get_time()))
-            transform = np.dot(_m1, _m3).T
+            transform = (_m1 @ _m3).T
             transformLoc = glGetUniformLocation(self.shaderProg, 'transform')
             glUniformMatrix4fv(transformLoc, 1, GL_FALSE, transform)
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)

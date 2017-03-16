@@ -51,7 +51,7 @@ class Triangle:
         w, h = im.size
         try:
             im_bytes = im.tobytes("raw", "RGBA", 0, -1)
-        except SystemError:
+        except ValueError:
             im_bytes = im.tobytes("raw", "RGBX", 0, -1)
         
         texture = glGenTextures(1)

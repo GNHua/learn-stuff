@@ -25,4 +25,7 @@ class OurShaderProgram:
         
     def setInt(self, name, value):
         glUniform1i(glGetUniformLocation(self.id, name), value)
+        
+    def get_uniform_location(self, name):
+        return glGetUniformLocation(self.id, name)
 

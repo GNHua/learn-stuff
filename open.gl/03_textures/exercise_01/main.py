@@ -20,9 +20,9 @@ class Triangle:
         self.indices = np.array([[0, 1, 2],
                                  [2, 3, 0]], dtype=GLuint)
         self.make_vao()
-        self.texture1 = self.make_texture('../images/sample.png', unit=GL_TEXTURE0)
+        self.texture1 = self.make_texture('../../images/sample.png', unit=GL_TEXTURE0)
         self.shader_program.setInt('ourTexture1', 0)
-        self.texture2 = self.make_texture('../images/sample2.png', unit=GL_TEXTURE1)
+        self.texture2 = self.make_texture('../../images/sample2.png', unit=GL_TEXTURE1)
         self.shader_program.setInt('ourTexture2', 1)
         self.shader_program.unuse()
         
@@ -86,11 +86,14 @@ class Triangle:
 
 def main():
     init_glfw()
+    time_start = time.time()
     with Triangle() as triangle:
         with bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, triangle.texture1), \
              bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, triangle.texture2):
+            uniTime = glGetUniformLocation(triangle.shader_program.id, 'time')
             while not glfw.window_should_close(triangle.window):
                 glfw.poll_events()
+                glUniform1f(uniTime, time.time()-time_start)
                 triangle.draw()
     glfw.terminate()
     

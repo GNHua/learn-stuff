@@ -20,9 +20,9 @@ class Triangle:
         self.indices = np.array([[0, 1, 2],
                                  [2, 3, 0]], dtype=GLuint)
         self.make_vao()
-        self.texture1 = self.make_texture('../images/sample.png', unit=GL_TEXTURE0)
+        self.texture1 = self.make_texture('../../images/sample.png', unit=GL_TEXTURE0)
         self.shader_program.setInt('ourTexture1', 0)
-        self.texture2 = self.make_texture('../images/sample2.png', unit=GL_TEXTURE1)
+        self.texture2 = self.make_texture('../../images/sample2.png', unit=GL_TEXTURE1)
         self.shader_program.setInt('ourTexture2', 1)
         self.shader_program.unuse()
         

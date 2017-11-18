@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image
 from util import *
 from shader import OurShaderProgram
-
-import time
+import transformations as tf
+from matrix import perspective_RH, look_at_RH
 
 
 class Triangle:
@@ -89,8 +89,23 @@ def main():
     with Triangle() as triangle:
         with bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, triangle.texture1), \
              bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, triangle.texture2):
+            uni_model = uni_proj = triangle.get_uniform_location('model')
+            
+            uni_view = uni_proj = triangle.get_uniform_location('view')
+            view = look_at_RH(np.array([0.0, 0.0, 0.0]),
+                              np.array([0.0,-1.0, 0.0]),
+                              np.array([0.0, 0.0, 1.0]))
+            glUniformMatrix4fv(uni_view, 1, GL_FALSE, view)
+            
+            # TODO - projection matrix does not work correctly
+            uni_proj = triangle.get_uniform_location('proj')
+            proj = perspective_RH(np.radians(45.0), 4/3, 1.0, 10.0)
+            glUniformMatrix4fv(uni_proj, 1, GL_FALSE, proj)
+            
             while not glfw.window_should_close(triangle.window):
                 glfw.poll_events()
+                model = tf.rotation_matrix(glfw.get_time() * np.pi, [0., 0., 1.])
+                glUniformMatrix4fv(uni_model, 1, GL_FALSE, model)
                 triangle.draw()
     glfw.terminate()
     

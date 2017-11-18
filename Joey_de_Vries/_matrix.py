@@ -10,7 +10,7 @@ def perspective_matrix(fov, aspect, near, far):
     |  aspect                                |
     |                                        |
     |                                        |
-    |     0     f       0            0       |
+    |     0    fov      0            0       |
     |                                        |
     |                                        |
     |                Near+Far    2*Near*Far  |

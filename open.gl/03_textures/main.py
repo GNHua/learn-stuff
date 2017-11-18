@@ -3,10 +3,9 @@ from OpenGL.GL import *
 import numpy as np
 from PIL import Image
 from util import *
+from shader import OurShaderProgram
 
-WIDTH = 800
-HEIGHT = 600
-    
+
 class Triangle:
     def __init__(self):
         self.window = prepare_window()
@@ -18,7 +17,6 @@ class Triangle:
                                   dtype=GLfloat)
         self.indices = np.array([[0, 1, 3],
                                  [2, 3, 0]], dtype=GLuint)
-        self.shader_program = make_shader_program('texture.vert', 'texture.frag')
         self.make_vao()
         self.texture1 = self.make_texture('../images/sample.png', unit=GL_TEXTURE0)
         self.texture2 = self.make_texture('../images/sample2.png', unit=GL_TEXTURE1)
@@ -26,6 +24,8 @@ class Triangle:
     def make_vao(self):
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
+        self.shader_program = OurShaderProgram(vert='texture.vert', frag='texture.frag')
+        self.shader_program.use()
         self.vbo = make_buffer_object(data=self.vertices.tostring(), 
                                       usage='GL_STATIC_DRAW', 
                                       target='GL_ARRAY_BUFFER')
@@ -57,6 +57,7 @@ class Triangle:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, im_bytes)
             glGenerateMipmap(GL_TEXTURE_2D)
+            glUniform1i(glGetUniformLocation(self.shader_program, "ourTexture1"), 0)
             
         return texture
             
@@ -65,8 +66,8 @@ class Triangle:
         with self.shader_program, bindVAO(self.VAO), \
           bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, self.texture1), \
           bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, self.texture2):
-            glUniform1i(glGetUniformLocation(self.shader_program, "ourTexture1"), 0)
-            glUniform1i(glGetUniformLocation(self.shader_program, "ourTexture2"), 1)
+            
+            
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
         glfw.swap_buffers(self.window)
     

@@ -7,7 +7,6 @@ import glm.gtc.matrix_transform as glm_mt
 
 from util import *
 from shader import OurShaderProgram
-import transformations as tf
 
 
 class Triangle:

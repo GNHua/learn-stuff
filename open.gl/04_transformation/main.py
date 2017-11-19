@@ -2,10 +2,12 @@ import glfw
 from OpenGL.GL import *
 import numpy as np
 from PIL import Image
+import glm
+import glm.gtc.matrix_transform as glm_mt
+
 from util import *
 from shader import OurShaderProgram
 import transformations as tf
-from matrix import perspective_RH, look_at_RH
 
 
 class Triangle:
@@ -89,23 +91,22 @@ def main():
     with Triangle() as triangle:
         with bindTexture(GL_TEXTURE0, GL_TEXTURE_2D, triangle.texture1), \
              bindTexture(GL_TEXTURE1, GL_TEXTURE_2D, triangle.texture2):
-            uni_model = uni_proj = triangle.get_uniform_location('model')
+            uni_model = triangle.shader_program.get_uniform_location('model')
             
-            uni_view = uni_proj = triangle.get_uniform_location('view')
-            view = look_at_RH(np.array([0.0, 0.0, 0.0]),
-                              np.array([0.0,-1.0, 0.0]),
-                              np.array([0.0, 0.0, 1.0]))
-            glUniformMatrix4fv(uni_view, 1, GL_FALSE, view)
+            uni_view = triangle.shader_program.get_uniform_location('view')
+            view = glm_mt.lookAt(np.array([1.2, 1.2, 1.2]),
+                                 np.array([0.0, 0.0, 0.0]),
+                                 np.array([0.0, 0.0, 1.0]))
+            glUniformMatrix4fv(uni_view, 1, GL_FALSE, np.array(view, dtype=GLfloat))
             
-            # TODO - projection matrix does not work correctly
-            uni_proj = triangle.get_uniform_location('proj')
-            proj = perspective_RH(np.radians(45.0), 4/3, 1.0, 10.0)
-            glUniformMatrix4fv(uni_proj, 1, GL_FALSE, proj)
+            uni_proj = triangle.shader_program.get_uniform_location('proj')
+            proj = glm_mt.perspective(np.radians(45.0), 4/3, 1.0, 10.0)
+            glUniformMatrix4fv(uni_proj, 1, GL_FALSE, np.array(proj, dtype=GLfloat))
             
             while not glfw.window_should_close(triangle.window):
                 glfw.poll_events()
-                model = tf.rotation_matrix(glfw.get_time() * np.pi, [0., 0., 1.])
-                glUniformMatrix4fv(uni_model, 1, GL_FALSE, model)
+                model = glm_mt.rotate(glm.mat4(), glfw.get_time()*np.pi, np.array([0., 0., 1.]))
+                glUniformMatrix4fv(uni_model, 1, GL_FALSE, np.array(model, dtype=GLfloat))
                 triangle.draw()
     glfw.terminate()
     

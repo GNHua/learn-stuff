@@ -20,7 +20,7 @@ class Window(QtGui.QOpenGLWindow):
         format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
         format.setVersion(4, 1)
         self.setFormat(format)
-    
+        
     def initializeGL(self):
         self.gl = self.context().versionFunctions()
         self.gl.glViewport(0, 0, WIDTH, HEIGHT)
@@ -33,13 +33,9 @@ class Window(QtGui.QOpenGLWindow):
         self.indices1 = np.array([1, 2, 3], dtype=GLuint)
         self.indices2 = np.array([0, 1, 2], dtype=GLuint)
         
-        vertShader = QtGui.QOpenGLShader(QtGui.QOpenGLShader.Vertex)
-        vertShader.compileSourceFile('triangle.vert')
-        vertShader = QtGui.QOpenGLShader(QtGui.QOpenGLShader.Fragment)
-        vertShader.compileSourceFile('triangle.frag')
-        
         ########################################################
         # Create a shader program
+        
         self.shaderProg = QtGui.QOpenGLShaderProgram()
         self.shaderProg.create()
         self.shaderProg.addShaderFromSourceFile(
@@ -49,8 +45,10 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg.link()
         ########################################################
         
+        
         ########################################################
         # create a Vertex Array Object with vertice information
+        
         self.VAO1 = QtGui.QOpenGLVertexArrayObject()
         self.VAO1.create()
         self.VAO1.bind()
@@ -78,6 +76,7 @@ class Window(QtGui.QOpenGLWindow):
         
         ########################################################
         # create another Vertex Array Object
+        
         self.VAO2 = QtGui.QOpenGLVertexArrayObject()
         self.VAO2.create()
         self.VAO2.bind()
@@ -107,7 +106,7 @@ class Window(QtGui.QOpenGLWindow):
         self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
         self.shaderProg.bind()
         self.VAO1.bind()
-        self.gl.glDrawElements(self.gl.GL_TRIANGLES, 3, 
+        self.gl.glDrawElements(self.gl.GL_TRIANGLES, 3,
             self.gl.GL_UNSIGNED_INT, None)
         self.VAO2.bind()
         self.gl.glDrawElements(self.gl.GL_TRIANGLES, 3,

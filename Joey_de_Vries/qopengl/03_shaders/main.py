@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 from ctypes import c_float, c_uint, sizeof
 
@@ -20,6 +20,8 @@ class Window(QtGui.QOpenGLWindow):
         format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
         format.setVersion(4, 1)
         self.setFormat(format)
+        
+        self.setTitle('LearnOpenGL')
         
     def initializeGL(self):
         self.gl = self.context().versionFunctions()
@@ -82,6 +84,11 @@ class Window(QtGui.QOpenGLWindow):
         self.gl.glDrawElements(self.gl.GL_TRIANGLES, 3,
             self.gl.GL_UNSIGNED_INT, None)
         self.VAO1.release()
+        
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            sys.exit()
+        event.accept()
 
 
 if __name__ == '__main__':

@@ -24,6 +24,11 @@ class Window(QtGui.QOpenGLWindow):
         
     def paintGL(self):
         self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
+        
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            sys.exit()
+        event.accept()
 
 
 if __name__ == '__main__':

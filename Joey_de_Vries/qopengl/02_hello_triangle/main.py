@@ -112,6 +112,11 @@ class Window(QtGui.QOpenGLWindow):
         self.gl.glDrawElements(self.gl.GL_TRIANGLES, 3,
             self.gl.GL_UNSIGNED_INT, None)
         self.VAO2.release()
+        
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            sys.exit()
+        event.accept()
 
 
 if __name__ == '__main__':

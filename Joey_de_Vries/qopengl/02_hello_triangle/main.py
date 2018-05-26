@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 from ctypes import c_float, c_uint, sizeof
 

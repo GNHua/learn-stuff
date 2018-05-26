@@ -23,17 +23,18 @@ class Window(QtGui.QOpenGLWindow):
 if __name__ == '__main__':
     import sys
     
-    app = QtWidgets.QApplication(sys.argv)
-    
     # Set format here, otherwise it throws error
     # `QCocoaGLContext: Falling back to unshared context.`
     # when use QOpenGLWidgets
+    # https://doc.qt.io/qt-5/qopenglwidget.html#details last paragraph
     format = QtGui.QSurfaceFormat()
     format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)
     format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
     format.setVersion(4, 1)
     format.setStencilBufferSize(8)
     QtGui.QSurfaceFormat.setDefaultFormat(format)
+    
+    app = QtWidgets.QApplication(sys.argv)
     
     window = Window()
     window.resize(640, 400)

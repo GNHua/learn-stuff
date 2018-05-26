@@ -13,14 +13,6 @@ class Window(QtGui.QOpenGLWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Make sure to set the Surface Format in `__init__`.
-        # Otherwise, it won't work.
-        format = QtGui.QSurfaceFormat()
-        format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)
-        format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
-        format.setVersion(4, 1)
-        self.setFormat(format)
-        
         self.setTitle('LearnOpenGL')
         
     def initializeGL(self):
@@ -95,6 +87,16 @@ if __name__ == '__main__':
     import sys
     
     app = QtWidgets.QApplication(sys.argv)
+    
+    # Set format here, otherwise it throws error
+    # `QCocoaGLContext: Falling back to unshared context.`
+    # when use QOpenGLWidgets
+    format = QtGui.QSurfaceFormat()
+    format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)
+    format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
+    format.setVersion(4, 1)
+    format.setStencilBufferSize(8)
+    QtGui.QSurfaceFormat.setDefaultFormat(format)
     
     window = Window()
     window.resize(640, 400)

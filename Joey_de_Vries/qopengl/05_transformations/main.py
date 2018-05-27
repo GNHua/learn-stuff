@@ -1,6 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 from ctypes import c_float, c_uint, sizeof
+import time
 
 GLfloat = c_float
 GLuint = c_uint
@@ -99,6 +100,8 @@ class Window(QtGui.QOpenGLWindow):
         self.texture2.setWrapMode(QtGui.QOpenGLTexture.Repeat)
         ########################################################
         
+        self.start_time = time.time()
+        
     def paintGL(self):
         self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
         self.shaderProg.bind()
@@ -110,9 +113,25 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg.setUniformValue("ourTexture1", 0)
         self.shaderProg.setUniformValue("ourTexture2", 1)
         
+        t = time.time() - self.start_time
+        m1 = QtGui.QMatrix4x4()
+        m1.translate(0.5, -0.5, 0.)
+        m2 = QtGui.QMatrix4x4()
+        m2.rotate(t*30, 0., 0., 1.)
+        transform = m1 * m2
+        self.shaderProg.setUniformValue("transform", transform)
         self.gl.glDrawElements(self.gl.GL_TRIANGLES, 6,
             self.gl.GL_UNSIGNED_INT, None)
+            
+        m3 = QtGui.QMatrix4x4()
+        m3.scale(np.sin(t))
+        transform = m1 * m3
+        self.shaderProg.setUniformValue("transform", transform)
+        self.gl.glDrawElements(self.gl.GL_TRIANGLES, 6,
+            self.gl.GL_UNSIGNED_INT, None)
+            
         self.VAO1.release()
+        self.update()
         
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
@@ -136,7 +155,7 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     
     window = Window()
-    window.resize(640, 400)
+    window.resize(WIDTH, HEIGHT)
     window.show()
     
     sys.exit(app.exec_())

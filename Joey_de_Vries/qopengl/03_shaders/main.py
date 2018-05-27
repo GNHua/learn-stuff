@@ -88,7 +88,7 @@ if __name__ == '__main__':
     
     # Set format here, otherwise it throws error
     # `QCocoaGLContext: Falling back to unshared context.`
-    # when use QOpenGLWidgets
+    # on Mac when use QOpenGLWidgets
     # https://doc.qt.io/qt-5/qopenglwidget.html#details last paragraph
     format = QtGui.QSurfaceFormat()
     format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)

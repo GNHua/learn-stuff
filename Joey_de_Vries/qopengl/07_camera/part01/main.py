@@ -2,6 +2,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 from ctypes import c_float, c_uint, sizeof
 import time
+import math
 
 GLfloat = c_float
 GLuint = c_uint
@@ -17,18 +18,66 @@ class Window(QtGui.QOpenGLWindow):
         
         self.setTitle('LearnOpenGL')
         
-                                    # Positions       # Colors         # Texture Coords
-        self.vertices = np.array([[ 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0],   # Top Right
-                                  [ 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0],   # Bottom Right
-                                  [-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0],   # Bottom Left
-                                  [-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0]],  # Top Left 
-                                  dtype=GLfloat)
-        self.indices = np.array([[0, 1, 3],
-                                 [1, 2, 3]], dtype=GLuint)
+        self.vertices = np.array(
+           [[-0.5, -0.5, -0.5,  0.0, 0.0],
+            [ 0.5, -0.5, -0.5,  1.0, 0.0],
+            [ 0.5,  0.5, -0.5,  1.0, 1.0],
+            [ 0.5,  0.5, -0.5,  1.0, 1.0],
+            [-0.5,  0.5, -0.5,  0.0, 1.0],
+            [-0.5, -0.5, -0.5,  0.0, 0.0],
+
+            [-0.5, -0.5,  0.5,  0.0, 0.0],
+            [ 0.5, -0.5,  0.5,  1.0, 0.0],
+            [ 0.5,  0.5,  0.5,  1.0, 1.0],
+            [ 0.5,  0.5,  0.5,  1.0, 1.0],
+            [-0.5,  0.5,  0.5,  0.0, 1.0],
+            [-0.5, -0.5,  0.5,  0.0, 0.0],
+
+            [-0.5,  0.5,  0.5,  1.0, 0.0],
+            [-0.5,  0.5, -0.5,  1.0, 1.0],
+            [-0.5, -0.5, -0.5,  0.0, 1.0],
+            [-0.5, -0.5, -0.5,  0.0, 1.0],
+            [-0.5, -0.5,  0.5,  0.0, 0.0],
+            [-0.5,  0.5,  0.5,  1.0, 0.0],
+
+            [ 0.5,  0.5,  0.5,  1.0, 0.0],
+            [ 0.5,  0.5, -0.5,  1.0, 1.0],
+            [ 0.5, -0.5, -0.5,  0.0, 1.0],
+            [ 0.5, -0.5, -0.5,  0.0, 1.0],
+            [ 0.5, -0.5,  0.5,  0.0, 0.0],
+            [ 0.5,  0.5,  0.5,  1.0, 0.0],
+
+            [-0.5, -0.5, -0.5,  0.0, 1.0],
+            [ 0.5, -0.5, -0.5,  1.0, 1.0],
+            [ 0.5, -0.5,  0.5,  1.0, 0.0],
+            [ 0.5, -0.5,  0.5,  1.0, 0.0],
+            [-0.5, -0.5,  0.5,  0.0, 0.0],
+            [-0.5, -0.5, -0.5,  0.0, 1.0],
+
+            [-0.5,  0.5, -0.5,  0.0, 1.0],
+            [ 0.5,  0.5, -0.5,  1.0, 1.0],
+            [ 0.5,  0.5,  0.5,  1.0, 0.0],
+            [ 0.5,  0.5,  0.5,  1.0, 0.0],
+            [-0.5,  0.5,  0.5,  0.0, 0.0],
+            [-0.5,  0.5, -0.5,  0.0, 1.0]], dtype=GLfloat
+        )
+        self.cubePositions = np.array(
+           [[ 0.0,  0.0,  0.0],
+            [ 2.0,  5.0, -15.0],
+            [-1.5, -2.2, -2.5],
+            [-3.8, -2.0, -12.3],
+            [ 2.4, -0.4, -3.5],
+            [-1.7,  3.0, -7.5],
+            [ 1.3, -2.0, -2.5],
+            [ 1.5,  2.0, -2.5],
+            [ 1.5,  0.2, -1.5],
+            [-1.3,  1.0, -1.5]], dtype=GLfloat
+        )
         
     def initializeGL(self):
         self.gl = self.context().versionFunctions()
         self.gl.glViewport(0, 0, WIDTH, HEIGHT)
+        self.gl.glEnable(self.gl.GL_DEPTH_TEST)
         self.gl.glClearColor(0.2, 0.3, 0.3, 1.)
         
         ########################################################
@@ -37,9 +86,9 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg = QtGui.QOpenGLShaderProgram()
         self.shaderProg.create()
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Vertex, 'texture.vert')
+            QtGui.QOpenGLShader.Vertex, 'camera.vert')
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Fragment, 'texture.frag')
+            QtGui.QOpenGLShader.Fragment, 'camera.frag')
         self.shaderProg.link()
         ########################################################
         
@@ -58,21 +107,11 @@ class Window(QtGui.QOpenGLWindow):
         VBO.bind()
         VBO.allocate(data, len(data))
         self.gl.glVertexAttribPointer(0, 3, self.gl.GL_FLOAT, 
-            self.gl.GL_FALSE, 8*sizeof(GLfloat), 0)
+            self.gl.GL_FALSE, 5*sizeof(GLfloat), 0)
         self.gl.glEnableVertexAttribArray(0)
-        self.gl.glVertexAttribPointer(1, 3, self.gl.GL_FLOAT, 
-            self.gl.GL_FALSE, 8*sizeof(GLfloat), 3*sizeof(GLfloat))
+        self.gl.glVertexAttribPointer(1, 2, self.gl.GL_FLOAT, 
+            self.gl.GL_FALSE, 5*sizeof(GLfloat), 3*sizeof(GLfloat))
         self.gl.glEnableVertexAttribArray(1)
-        self.gl.glVertexAttribPointer(2, 2, self.gl.GL_FLOAT, 
-            self.gl.GL_FALSE, 8*sizeof(GLfloat), 6*sizeof(GLfloat))
-        self.gl.glEnableVertexAttribArray(2)
-        
-        EBO = QtGui.QOpenGLBuffer(QtGui.QOpenGLBuffer.IndexBuffer)
-        EBO.create()
-        EBO.setUsagePattern(QtGui.QOpenGLBuffer.StaticDraw)
-        data = self.indices.tostring()
-        EBO.bind()
-        EBO.allocate(data, len(data))
         
         VBO.release()
         self.VAO1.release()
@@ -81,7 +120,7 @@ class Window(QtGui.QOpenGLWindow):
         ########################################################
         # creates a texture
         
-        im1 = QtGui.QImage('../images/container.jpg')
+        im1 = QtGui.QImage('../../images/container.jpg')
         self.texture1 = QtGui.QOpenGLTexture(im1)
         self.texture1.create()
         self.texture1.setMinMagFilters(QtGui.QOpenGLTexture.Linear,
@@ -92,7 +131,7 @@ class Window(QtGui.QOpenGLWindow):
         ########################################################
         # creates a texture
         
-        im2 = QtGui.QImage('../images/awesomeface.png').mirrored()
+        im2 = QtGui.QImage('../../images/awesomeface.png').mirrored()
         self.texture2 = QtGui.QOpenGLTexture(im2)
         self.texture2.create()
         self.texture2.setMinMagFilters(QtGui.QOpenGLTexture.Linear,
@@ -100,35 +139,43 @@ class Window(QtGui.QOpenGLWindow):
         self.texture2.setWrapMode(QtGui.QOpenGLTexture.Repeat)
         ########################################################
         
-        self.starTime = time.time()
+        self.startTime = time.time()
         
     def paintGL(self):
-        self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
+        self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT | \
+                        self.gl.GL_DEPTH_BUFFER_BIT)
         self.shaderProg.bind()
         self.VAO1.bind()
         self.gl.glActiveTexture(self.gl.GL_TEXTURE0)
         self.texture1.bind()
         self.gl.glActiveTexture(self.gl.GL_TEXTURE1)
         self.texture2.bind()
-        self.shaderProg.setUniformValue("ourTexture1", 0)
-        self.shaderProg.setUniformValue("ourTexture2", 1)
+        self.shaderProg.setUniformValue('texture1', 0)
+        self.shaderProg.setUniformValue('texture2', 1)
         
         t = time.time() - self.startTime
-        m1 = QtGui.QMatrix4x4()
-        m1.translate(0.5, -0.5, 0.)
-        m2 = QtGui.QMatrix4x4()
-        m2.rotate(t*30, 0., 0., 1.)
-        transform = m1 * m2
-        self.shaderProg.setUniformValue("transform", transform)
-        self.gl.glDrawElements(self.gl.GL_TRIANGLES, 6,
-            self.gl.GL_UNSIGNED_INT, None)
-            
-        m3 = QtGui.QMatrix4x4()
-        m3.scale(np.sin(t))
-        transform = m1 * m3
-        self.shaderProg.setUniformValue("transform", transform)
-        self.gl.glDrawElements(self.gl.GL_TRIANGLES, 6,
-            self.gl.GL_UNSIGNED_INT, None)
+        view = QtGui.QMatrix4x4()
+        radius = 10.
+        camX = math.sin(t) * radius
+        camZ = math.cos(t) * radius
+        view.lookAt(QtGui.QVector3D(camX, 0.0, camZ), 
+                    QtGui.QVector3D( 0.0, 0.0,  0.0), 
+                    QtGui.QVector3D( 0.0, 1.0,  0.0))
+        self.shaderProg.setUniformValue('view', view)
+        
+        projection = QtGui.QMatrix4x4()
+        projection.perspective(45., WIDTH/HEIGHT, 0.1, 100.)
+        self.shaderProg.setUniformValue('projection', projection)
+        
+        for i in range(10):
+            model = QtGui.QMatrix4x4()
+            model.translate(*self.cubePositions[i])
+            angle = 20 * i
+            temp = QtGui.QMatrix4x4()
+            temp.rotate(angle, 1., 0.3, 0.5)
+            model *= temp
+            self.shaderProg.setUniformValue('model', model)
+            self.gl.glDrawArrays(self.gl.GL_TRIANGLES, 0, 36)
             
         self.VAO1.release()
         self.update()
@@ -154,6 +201,7 @@ if __name__ == '__main__':
     format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)
     format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
     format.setVersion(4, 1)
+    format.setDepthBufferSize(24)
     QtGui.QSurfaceFormat.setDefaultFormat(format)
     
     app = QtWidgets.QApplication(sys.argv)

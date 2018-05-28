@@ -81,7 +81,7 @@ class Window(QtGui.QOpenGLWindow):
         ########################################################
         # creates a texture
         
-        im1 = QtGui.QImage('../images/awesomeface.png').mirrored()
+        im1 = QtGui.QImage('../images/container.jpg')
         self.texture1 = QtGui.QOpenGLTexture(im1)
         self.texture1.create()
         self.texture1.setMinMagFilters(QtGui.QOpenGLTexture.Linear,
@@ -92,7 +92,7 @@ class Window(QtGui.QOpenGLWindow):
         ########################################################
         # creates a texture
         
-        im2 = QtGui.QImage('../images/container.jpg')
+        im2 = QtGui.QImage('../images/awesomeface.png').mirrored()
         self.texture2 = QtGui.QOpenGLTexture(im2)
         self.texture2.create()
         self.texture2.setMinMagFilters(QtGui.QOpenGLTexture.Linear,
@@ -136,6 +136,10 @@ class Window(QtGui.QOpenGLWindow):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
             sys.exit()
+        event.accept()
+        
+    def closeEvent(self, event):
+        sys.exit()
         event.accept()
 
 

@@ -106,6 +106,10 @@ class Window(QtGui.QOpenGLWindow):
         if event.key() == QtCore.Qt.Key_Escape:
             sys.exit()
         event.accept()
+        
+    def closeEvent(self, event):
+        sys.exit()
+        event.accept()
 
 
 if __name__ == '__main__':

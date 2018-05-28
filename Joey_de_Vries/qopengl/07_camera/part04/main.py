@@ -3,6 +3,8 @@ import numpy as np
 from ctypes import c_float, c_uint, sizeof
 import time
 
+from camera import CameraMovement, Camera
+
 GLfloat = c_float
 GLuint = c_uint
 
@@ -10,11 +12,15 @@ WIDTH = 800
 HEIGHT = 600
 
 # camera
-cameraPos   = QtGui.QVector3D(0.0, 0.0,  3.0)
-cameraFront = QtGui.QVector3D(0.0, 0.0, -1.0)
-cameraUp    = QtGui.QVector3D(0.0, 1.0,  0.0)
+camera = Camera(position = QtGui.QVector3D(0., 0., 3.), 
+                up       = QtGui.QVector3D(0., 1., 0.))
 
-dateTime = 0.
+firstMouse = True
+lastX =  WIDTH / 2.0
+lastY =  HEIGHT / 2.0
+
+# timing
+dateTime = 0. # time between current frame and last frame
 lastFrame = 0.
 
 class Window(QtGui.QOpenGLWindow):
@@ -92,9 +98,9 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg = QtGui.QOpenGLShaderProgram()
         self.shaderProg.create()
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Vertex, '7.2.camera.vert')
+            QtGui.QOpenGLShader.Vertex, '7.4.camera.vert')
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Fragment, '7.2.camera.frag')
+            QtGui.QOpenGLShader.Fragment, '7.4.camera.frag')
         self.shaderProg.link()
         ########################################################
         
@@ -162,18 +168,15 @@ class Window(QtGui.QOpenGLWindow):
         deltaTime = currentFrame - lastFrame
         lastFrame = currentFrame
         
-        view = QtGui.QMatrix4x4()
-        view.lookAt(cameraPos, cameraPos+cameraFront, cameraUp)
-        self.shaderProg.setUniformValue('view', view)
-        
         projection = QtGui.QMatrix4x4()
-        projection.perspective(45., WIDTH/HEIGHT, 0.1, 100.)
+        projection.perspective(camera.zoom, WIDTH/HEIGHT, 0.1, 100.)
         self.shaderProg.setUniformValue('projection', projection)
+        self.shaderProg.setUniformValue('view', camera.viewMatrix)
         
         for i in range(10):
             model = QtGui.QMatrix4x4()
             model.translate(*self.cubePositions[i])
-            angle = 20 * i
+            angle = 20. * i
             temp = QtGui.QMatrix4x4()
             temp.rotate(angle, 1., 0.3, 0.5)
             model *= temp
@@ -184,22 +187,37 @@ class Window(QtGui.QOpenGLWindow):
         self.update()
         
     def keyPressEvent(self, event):
-        global cameraPos, cameraFront, cameraUp
-        cameraSpeed = 2.5 * deltaTime
+        global deltaTime
         
         if event.key() == QtCore.Qt.Key_Escape:
             sys.exit()
         elif event.key() == QtCore.Qt.Key_W:
-            cameraPos += cameraSpeed * cameraFront
+            camera.processKeyboard(CameraMovement.FOWARD, deltaTime)
         elif event.key() == QtCore.Qt.Key_S:
-            cameraPos -= cameraSpeed * cameraFront
+            camera.processKeyboard(CameraMovement.BACKWARD, deltaTime)
         elif event.key() == QtCore.Qt.Key_A:
-            temp = QtGui.QVector3D.crossProduct(cameraFront, cameraUp).normalized()
-            cameraPos -= temp * cameraSpeed
+            camera.processKeyboard(CameraMovement.LEFT, deltaTime)
         elif event.key() == QtCore.Qt.Key_D:
-            temp = QtGui.QVector3D.crossProduct(cameraFront, cameraUp).normalized()
-            cameraPos += temp * cameraSpeed
+            camera.processKeyboard(CameraMovement.RIGHT, deltaTime)
             
+        event.accept()
+        
+    def mouseMoveEvent(self, event):
+        global firstMouse, lastX, lastY
+        
+        if firstMouse:
+            lastX, lastY = event.globalX(), event.globalY()
+            firstMouse = False
+            
+        xoffset = event.globalX() - lastX
+        yoffset = lastY - event.globalY()
+        lastX, lastY = event.globalX(), event.globalY()
+        
+        camera.processMouseMovement(xoffset, yoffset)
+        event.accept()
+        
+    def wheelEvent(self, event):
+        camera.processMouseScroll(event.angleDelta().y())
         event.accept()
         
     def closeEvent(self, event):

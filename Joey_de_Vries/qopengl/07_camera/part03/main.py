@@ -2,6 +2,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 from ctypes import c_float, c_uint, sizeof
 import time
+import math
 
 GLfloat = c_float
 GLuint = c_uint
@@ -14,7 +15,15 @@ cameraPos   = QtGui.QVector3D(0.0, 0.0,  3.0)
 cameraFront = QtGui.QVector3D(0.0, 0.0, -1.0)
 cameraUp    = QtGui.QVector3D(0.0, 1.0,  0.0)
 
-dateTime = 0.
+firstMouse = True
+yaw   = -90.0	# yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+pitch =  0.0
+lastX =  800.0 / 2.0
+lastY =  600.0 / 2.0
+fov   =  45.0
+
+# timing
+dateTime = 0. # time between current frame and last frame
 lastFrame = 0.
 
 class Window(QtGui.QOpenGLWindow):
@@ -92,9 +101,9 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg = QtGui.QOpenGLShaderProgram()
         self.shaderProg.create()
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Vertex, '7.2.camera.vert')
+            QtGui.QOpenGLShader.Vertex, '7.3.camera.vert')
         self.shaderProg.addShaderFromSourceFile(
-            QtGui.QOpenGLShader.Fragment, '7.2.camera.frag')
+            QtGui.QOpenGLShader.Fragment, '7.3.camera.frag')
         self.shaderProg.link()
         ########################################################
         
@@ -167,13 +176,13 @@ class Window(QtGui.QOpenGLWindow):
         self.shaderProg.setUniformValue('view', view)
         
         projection = QtGui.QMatrix4x4()
-        projection.perspective(45., WIDTH/HEIGHT, 0.1, 100.)
+        projection.perspective(fov, WIDTH/HEIGHT, 0.1, 100.)
         self.shaderProg.setUniformValue('projection', projection)
         
         for i in range(10):
             model = QtGui.QMatrix4x4()
             model.translate(*self.cubePositions[i])
-            angle = 20 * i
+            angle = 20. * i
             temp = QtGui.QMatrix4x4()
             temp.rotate(angle, 1., 0.3, 0.5)
             model *= temp
@@ -184,7 +193,7 @@ class Window(QtGui.QOpenGLWindow):
         self.update()
         
     def keyPressEvent(self, event):
-        global cameraPos, cameraFront, cameraUp
+        global cameraPos, cameraFront, cameraUp, deltaTime
         cameraSpeed = 2.5 * deltaTime
         
         if event.key() == QtCore.Qt.Key_Escape:
@@ -199,6 +208,50 @@ class Window(QtGui.QOpenGLWindow):
         elif event.key() == QtCore.Qt.Key_D:
             temp = QtGui.QVector3D.crossProduct(cameraFront, cameraUp).normalized()
             cameraPos += temp * cameraSpeed
+            
+        event.accept()
+        
+    def mouseMoveEvent(self, event):
+        global firstMouse, yaw, pitch, lastX, lastY, cameraFront
+        
+        if firstMouse:
+            lastX, lastY = event.globalX(), event.globalY()
+            firstMouse = False
+            
+        xoffset = event.globalX() - lastX
+        yoffset = lastY - event.globalY()
+        lastX, lastY = event.globalX(), event.globalY()
+        
+        sensitivity = 0.1
+        xoffset *= sensitivity
+        yoffset *= sensitivity
+        
+        yaw += xoffset
+        pitch += yoffset
+        
+        if pitch > 89.:
+            pitch = 89.
+        if pitch < -89.:
+            pitch = -89.
+            
+        front = QtGui.QVector3D(
+            math.cos(math.radians(yaw)) * math.cos(math.radians(pitch)), 
+            math.sin(math.radians(pitch)),
+            math.sin(math.radians(yaw)) * math.cos(math.radians(pitch))
+        )
+        cameraFront = front.normalized()
+        
+        event.accept()
+        
+    def wheelEvent(self, event):
+        global fov
+        
+        if fov >= 1. and fov <= 45.:
+            fov -= event.angleDelta().y()
+        elif fov < 1.:
+            fov = 1.
+        elif fov > 45.:
+            fov = 45.
             
         event.accept()
         

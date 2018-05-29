@@ -192,7 +192,7 @@ class Window(QtGui.QOpenGLWindow):
         if event.key() == QtCore.Qt.Key_Escape:
             sys.exit()
         elif event.key() == QtCore.Qt.Key_W:
-            camera.processKeyboard(CameraMovement.FOWARD, deltaTime)
+            camera.processKeyboard(CameraMovement.FORWARD, deltaTime)
         elif event.key() == QtCore.Qt.Key_S:
             camera.processKeyboard(CameraMovement.BACKWARD, deltaTime)
         elif event.key() == QtCore.Qt.Key_A:

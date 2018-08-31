@@ -6,8 +6,23 @@
     <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css">
   </head>
   <body>
-    <h1>My App</h1>
+    <div>
+      <h1>My App</h1>
+      <div id="output"></div>
+    </div>
   </body>
+  <script>
+    console.log(process);
+    let output = `
+      <h2 class="page-header">App Version Data</h2>
+      <ul class="list-group">
+        <li class="list-group-item">Node: ${process.versions.node}</li>
+        <li class="list-group-item">Chrome: ${process.versions.chrome}</li>
+        <li class="list-group-item">Electron: ${process.versions.electron}</li>
+      </ul>
+    `;
+    document.getElementById('output').innerHTML = output;
+  </script>
   <script>
     require('./renderer.js');
   </script>

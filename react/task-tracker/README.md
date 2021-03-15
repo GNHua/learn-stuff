@@ -10,6 +10,7 @@ Following this tutorial video: https://www.youtube.com/watch?v=w7ejDZ8SWv8
 $ npx create-react-app task-tracker --template typescript
 $ npm start
 $ npm run server
+$ python -m http.server --bind 127.0.0.1 --directory build/ 8000
 ```
 
 ## Available Scripts

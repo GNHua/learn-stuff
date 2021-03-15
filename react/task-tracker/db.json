@@ -7,28 +7,16 @@
       "reminder": true
     },
     {
-      "id": 3,
-      "text": "Dinner with Max",
+      "id": 2,
+      "text": "Dinner",
       "time": "Feb 5th at 6:30pm",
       "reminder": true
     },
     {
-      "text": "asdfa",
-      "time": "1231",
-      "reminder": false,
-      "id": 4
-    },
-    {
-      "text": "see movie",
-      "time": "12355",
-      "reminder": false,
-      "id": 5
-    },
-    {
-      "text": "12313",
-      "time": "asdfa",
-      "reminder": true,
-      "id": 6
+      "id": 4,
+      "text": "Workout",
+      "time": "Feb 5th at 8:30pm",
+      "reminder": false
     }
   ]
 }
